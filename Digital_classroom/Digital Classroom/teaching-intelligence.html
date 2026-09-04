@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teaching Intelligence | Teacher OS</title>
+    <link rel="stylesheet" href="assets/css/classroom.css">
+    <style>
+      .intel-hero {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.08), rgba(79, 140, 255, 0.12));
+        border: 1px solid rgba(124, 92, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+      }
+      .intel-hero::after {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(124, 92, 255, 0.25) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .intel-tabs {
+        display: flex;
+        gap: 12px;
+        margin: 20px 0;
+        border-bottom: 1px solid var(--border-strong);
+        padding-bottom: 8px;
+      }
+      .intel-tab-btn {
+        background: none;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+      }
+      .intel-tab-btn.active {
+        background: var(--surface-strong);
+        color: var(--accent-violet);
+        box-shadow: 0 4px 12px rgba(124, 92, 255, 0.15);
+      }
+      .intel-metric-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 16px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid rgba(176, 191, 217, 0.35);
+        border-radius: 14px;
+        margin-bottom: 10px;
+      }
+      .intel-progress-track {
+        width: 140px;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .intel-progress-fill {
+        height: 100%;
+        border-radius: 4px;
+      }
+      .intel-metric-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .intel-student-alert-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 18px;
+        background: rgba(255, 241, 242, 0.8);
+        border: 1px solid rgba(244, 63, 94, 0.3);
+        border-radius: 16px;
+        margin-bottom: 12px;
+      }
+      .alert-card-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .student-avatar-circle {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: var(--accent-violet);
+        color: white;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .student-avatar-lg {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-violet), var(--accent-blue));
+        color: white;
+        font-size: 22px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .intel-evidence-pill {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.7);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+      .badge-source {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+      .badge-exam { background: #e0f2fe; color: #0369a1; }
+      .badge-task { background: #dcfce7; color: #15803d; }
+      .badge-ocr { background: #f3e8ff; color: #7e22ce; }
+      .badge-live_quiz { background: #ffedd5; color: #c2410c; }
+      .badge-competition { background: #fef08a; color: #854d0e; }
+      .recommendation-card {
+        padding: 24px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(124, 92, 255, 0.3);
+        background: rgba(255, 255, 255, 0.9);
+      }
+      .rec-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .rec-badge {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--accent-violet);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .status-pending { background: #fef3c7; color: #92400e; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+      .status-accepted { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; }
+      .rec-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin: 16px 0;
+      }
+      .rec-block {
+        padding: 14px 16px;
+        border-radius: 12px;
+        background: var(--bg-soft);
+      }
+      .rec-action-box {
+        padding: 16px;
+        border-radius: 12px;
+        background: rgba(124, 92, 255, 0.07);
+        border: 1px solid rgba(124, 92, 255, 0.2);
+        margin-bottom: 18px;
+      }
+      .block-title {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-muted);
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        display: block;
+      }
+      .rec-footer-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .action-buttons-group {
+        display: flex;
+        gap: 10px;
+      }
+      /* Chat Drawer */
+      .chat-drawer {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 440px;
+        height: 560px;
+        background: rgba(255, 255, 255, 0.96);
+        backdrop-filter: blur(24px);
+        border: 1px solid rgba(124, 92, 255, 0.35);
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(79, 140, 255, 0.25);
+        display: flex;
+        flex-direction: column;
+        z-index: 999;
+        transform: translateY(120%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .chat-drawer.open {
+        transform: translateY(0);
+      }
+      .chat-drawer-header {
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-soft);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(90deg, rgba(124, 92, 255, 0.08), transparent);
+      }
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .chat-msg {
+        display: flex;
+        gap: 10px;
+        max-width: 90%;
+      }
+      .user-msg {
+        align-self: flex-end;
+      }
+      .user-msg .msg-bubble {
+        background: var(--accent-violet);
+        color: white;
+        border-radius: 16px 16px 2px 16px;
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+      .ai-msg {
+        align-self: flex-start;
+      }
+      .ai-msg .msg-bubble {
+        background: var(--bg-soft);
+        border: 1px solid var(--border-strong);
+        color: var(--text-strong);
+        border-radius: 16px 16px 16px 2px;
+        padding: 12px 16px;
+        font-size: 13.5px;
+        line-height: 1.5;
+      }
+      .chat-drawer-input {
+        padding: 14px 16px;
+        border-top: 1px solid var(--border-soft);
+        display: flex;
+        gap: 10px;
+      }
+      .chat-quick-prompts {
+        display: flex;
+        gap: 6px;
+        padding: 8px 16px;
+        overflow-x: auto;
+        border-top: 1px solid var(--border-soft);
+        background: var(--bg-canvas);
+      }
+      .quick-chip {
+        font-size: 11.5px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        background: white;
+        border: 1px solid var(--border-strong);
+        color: var(--text-soft);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+      .quick-chip:hover {
+        border-color: var(--accent-violet);
+        color: var(--accent-violet);
+      }
+      .student-pills-row {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 12px 0;
+      }
+      .student-selector-chip {
+        padding: 8px 14px;
+        border-radius: 20px;
+        background: white;
+        border: 1px solid var(--border-strong);
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .student-selector-chip.active {
+        background: var(--accent-violet);
+        color: white;
+        border-color: var(--accent-violet);
+      }
+    </style>
+  </head>
+  <body data-page="intelligence">
+    <div class="page-shell" id="app-shell">
+      <!-- Universal Sidebar Navigation -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-badge">OS</div>
+          <div class="brand-copy">
+            <strong>Teacher OS</strong>
+            <span>Digital Classroom</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="teacher-dashboard.html">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Tasks</span>
+          </a>
+          <a class="nav-link" href="exam.html">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Exams</span>
+          </a>
+          <a class="nav-link" href="live_quiz-main/host-lobby.html">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Quizzes</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html?tab=competitions">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">Competitions</span>
+          </a>
+          <a class="nav-link active" href="teaching-intelligence.html">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-label">Teaching Intelligence</span>
+          </a>
+          <a class="nav-link" href="announcements.html">
+            <span class="nav-icon">📢</span>
+            <span class="nav-label">Announcements</span>
+          </a>
+        </nav>
+        <div class="sidebar-profile">
+          <span class="avatar">SJ</span>
+          <div>
+            <strong>Sarah Jenkins</strong>
+            <small>Class Teacher</small>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="dashboard-hero glass-panel intel-hero">
+          <div class="dashboard-hero-copy">
+            <span class="soft-pill">AI Teaching Engine</span>
+            <h1>Teaching Intelligence</h1>
+            <p class="subtitle">Continuously evaluating student evidence from Tasks, OCR, Exams, Quizzes, and Competitions into actionable pedagogical insights.</p>
+            <div class="form-actions mt-12">
+              <button class="btn btn-primary" onclick="IntelligenceUI.openChat()">
+                ✨ Consult Teaching AI
+              </button>
+              <a class="btn btn-secondary" href="student-dashboard.html" target="_blank">
+                Switch to Student View
+              </a>
+            </div>
+          </div>
+        </header>
+
+        <!-- Summary Metric Cards -->
+        <section class="stats-grid grid mt-20">
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Class Mastery</span>
+              <span class="stat-icon stat-icon-blue"></span>
+            </div>
+            <strong class="stat-value" id="intel-class-mastery">--%</strong>
+            <span class="stat-subtext">Across active curriculum</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">At-Risk Students</span>
+              <span class="stat-icon stat-icon-violet"></span>
+            </div>
+            <strong class="stat-value text-danger" id="intel-at-risk-count">--</strong>
+            <span class="stat-subtext">Need targeted revision</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Weakest Topic</span>
+              <span class="stat-icon stat-icon-amber"></span>
+            </div>
+            <strong class="stat-value" id="intel-weakest-topic">--</strong>
+            <span class="stat-subtext">Mechanism application</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Evidence Captured</span>
+              <span class="stat-icon stat-icon-completion"></span>
+            </div>
+            <strong class="stat-value" id="intel-evidence-count">--</strong>
+            <span class="stat-subtext">Live in Firestore</span>
+          </div>
+        </section>
+
+        <!-- Navigation Tabs -->
+        <div class="intel-tabs">
+          <button class="intel-tab-btn active" data-tab="class" onclick="switchIntelTab('class')">Class Intelligence</button>
+          <button class="intel-tab-btn" data-tab="student" onclick="switchIntelTab('student')">Student Intelligence</button>
+          <button class="intel-tab-btn" data-tab="recommendations" onclick="switchIntelTab('recommendations')">AI Decision Review</button>
+        </div>
+
+        <div id="intelligence-root">
+          <!-- Tab 1: Class Intelligence -->
+          <div id="tab-class-panel" class="tab-content">
+            <div class="two-col-grid grid">
+              <div class="glass-panel section-surface">
+                <div class="section-header">
+                  <div>
+                    <h2>Curriculum Topic Performance</h2>
+                    <p class="muted">Aggregated performance from all assessment sources.</p>
+                  </div>
+                </div>
+                <div id="intel-topics-list" class="mt-12"></div>
+              </div>
+
+              <div class="glass-panel section-surface">
+                <div class="section-header">
+                  <div>
+                    <h2>Students Requiring Attention</h2>
+                    <p class="muted">Recurring mistakes and gaps detected in recent assessments.</p>
+                  </div>
+                </div>
+                <div id="intel-at-risk-list" class="mt-12"></div>
+              </div>
+            </div>
+
+            <div class="glass-panel section-surface mt-20">
+              <div class="section-header">
+                <div>
+                  <h2>Live Evidence Stream</h2>
+                  <p class="muted">Real-time incoming student submissions from Tasks, OCR, Exams, Quizzes.</p>
+                </div>
+              </div>
+              <div id="intel-recent-evidence-list" class="mt-12"></div>
+            </div>
+          </div>
+
+          <!-- Tab 2: Student Intelligence -->
+          <div id="tab-student-panel" class="tab-content hidden">
+            <div class="student-pills-row">
+              <button class="student-selector-chip active" onclick="IntelligenceUI.selectStudent('student_leo'); updateActivePill(this);">
+                <span>Leo Carter</span> <small class="text-danger">(At-risk)</small>
+              </button>
+              <button class="student-selector-chip" onclick="IntelligenceUI.selectStudent('student_maya'); updateActivePill(this);">
+                <span>Maya Lin</span> <small class="text-success">(95%)</small>
+              </button>
+              <button class="student-selector-chip" onclick="IntelligenceUI.selectStudent('student_samira'); updateActivePill(this);">
+                <span>Samira Khan</span> <small>(60%)</small>
+              </button>
+              <button class="student-selector-chip" onclick="IntelligenceUI.selectStudent('student_alex'); updateActivePill(this);">
+                <span>Alex Rivera</span> <small>(70%)</small>
+              </button>
+              <button class="student-selector-chip" onclick="IntelligenceUI.selectStudent('student_priya'); updateActivePill(this);">
+                <span>Priya Sharma</span> <small>(90%)</small>
+              </button>
+            </div>
+            <div id="intel-student-detail-panel" class="mt-16"></div>
+          </div>
+
+          <!-- Tab 3: AI Recommendations & Decision Review -->
+          <div id="tab-recommendations-panel" class="tab-content hidden">
+            <div class="section-header mb-16">
+              <div>
+                <h2>AI Pedagogical Recommendations</h2>
+                <p class="muted">Proactive interventions generated by analyzing evidence patterns across assessments. You retain full approval control.</p>
+              </div>
+            </div>
+            <div id="intel-recommendations-list"></div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Grounded Teacher ↔ AI Chat Drawer -->
+    <div class="chat-drawer" id="intel-chat-drawer">
+      <div class="chat-drawer-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 18px;">🧠</span>
+          <strong>Teaching Intelligence Assistant</strong>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="IntelligenceUI.closeChat()">✕</button>
+      </div>
+      <div class="chat-quick-prompts">
+        <button class="quick-chip" onclick="IntelligenceUI.sendChatMessage('Why are these students struggling?')">Why struggling?</button>
+        <button class="quick-chip" onclick="IntelligenceUI.sendChatMessage('Show me the evidence.')">Show evidence</button>
+        <button class="quick-chip" onclick="IntelligenceUI.sendChatMessage('Which students need attention?')">Who needs attention?</button>
+        <button class="quick-chip" onclick="IntelligenceUI.sendChatMessage('Create a 20-minute activity for these students.')">Create 20-min activity</button>
+      </div>
+      <div class="chat-messages" id="intel-chat-messages">
+        <div class="chat-msg ai-msg">
+          <div class="ai-avatar">✨</div>
+          <div class="msg-bubble">
+            Hello Sarah! I am your Teaching Intelligence assistant. I have direct access to your classroom's Firestore evidence trail. What would you like to investigate?
+          </div>
+        </div>
+      </div>
+      <form class="chat-drawer-input" onsubmit="event.preventDefault(); IntelligenceUI.sendChatMessage();">
+        <input type="text" id="intel-chat-input" class="form-control" placeholder="Ask about student evidence, gaps, or interventions...">
+        <button type="submit" class="btn btn-primary btn-compact">Send</button>
+      </form>
+    </div>
+
+    <script type="module">
+      import { IntelligenceUI } from "./assets/js/intelligence-ui.js";
+
+      window.switchIntelTab = function(tabName) {
+        document.querySelectorAll(".intel-tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabName));
+        document.getElementById("tab-class-panel").classList.toggle("hidden", tabName !== "class");
+        document.getElementById("tab-student-panel").classList.toggle("hidden", tabName !== "student");
+        document.getElementById("tab-recommendations-panel").classList.toggle("hidden", tabName !== "recommendations");
+      };
+
+      window.updateActivePill = function(btn) {
+        document.querySelectorAll(".student-selector-chip").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        IntelligenceUI.init();
+      });
+    </script>
+  </body>
+</html>

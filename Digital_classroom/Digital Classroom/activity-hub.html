@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tasks, OCR & Competitions | Teacher OS</title>
+    <link rel="stylesheet" href="assets/css/classroom.css">
+    <style>
+      .hub-nav-tabs {
+        display: flex;
+        gap: 12px;
+        margin: 20px 0;
+        border-bottom: 1px solid var(--border-strong);
+        padding-bottom: 8px;
+      }
+      .hub-tab-btn {
+        background: none;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+      }
+      .hub-tab-btn.active {
+        background: var(--surface-strong);
+        color: var(--accent-blue);
+        box-shadow: 0 4px 12px rgba(79, 140, 255, 0.15);
+      }
+      .task-card {
+        padding: 20px 24px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid var(--border-soft);
+        border-radius: 18px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .task-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+      }
+      .task-meta-pills {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .ocr-badge {
+        background: #f3e8ff;
+        color: #7e22ce;
+        font-weight: 700;
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+      }
+      /* Modal Styles */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-box {
+        background: white;
+        width: min(640px, 92vw);
+        max-height: 88vh;
+        overflow-y: auto;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: var(--shadow-hover);
+      }
+      .ocr-preview-box {
+        background: var(--bg-soft);
+        border: 1px dashed var(--border-strong);
+        border-radius: 14px;
+        padding: 16px;
+        margin: 12px 0;
+      }
+      .handwritten-sample-img {
+        max-width: 100%;
+        border-radius: 10px;
+        border: 1px solid var(--border-strong);
+        margin-bottom: 12px;
+      }
+    </style>
+  </head>
+  <body data-page="tasks">
+    <div class="page-shell" id="app-shell">
+      <!-- Universal Sidebar Navigation -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-badge">OS</div>
+          <div class="brand-copy">
+            <strong>Teacher OS</strong>
+            <span>Digital Classroom</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="teacher-dashboard.html">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-link active" href="activity-hub.html">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Tasks</span>
+          </a>
+          <a class="nav-link" href="exam.html">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Exams</span>
+          </a>
+          <a class="nav-link" href="live_quiz-main/host-lobby.html">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Quizzes</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html?tab=competitions">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">Competitions</span>
+          </a>
+          <a class="nav-link" href="teaching-intelligence.html">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-label">Teaching Intelligence</span>
+          </a>
+          <a class="nav-link" href="announcements.html">
+            <span class="nav-icon">📢</span>
+            <span class="nav-label">Announcements</span>
+          </a>
+        </nav>
+        <div class="sidebar-profile">
+          <span class="avatar">SJ</span>
+          <div>
+            <strong>Sarah Jenkins</strong>
+            <small>Class Teacher</small>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="dashboard-hero glass-panel page-hero page-hero-slim">
+          <div class="dashboard-hero-copy">
+            <span class="soft-pill">Evidence Collection Layer</span>
+            <h1>Tasks, OCR & Competitions</h1>
+            <p class="subtitle">Assign curriculum tasks, review handwritten work with AI OCR grading, and host academic competitions that automatically feed into Teaching Intelligence.</p>
+          </div>
+          <div class="dashboard-hero-actions">
+            <button class="btn btn-primary" onclick="openCreateTaskModal()">+ Create New Task</button>
+            <button class="btn btn-secondary" onclick="openCreateCompModal()">+ New Competition</button>
+          </div>
+        </header>
+
+        <!-- Tabs -->
+        <div class="hub-nav-tabs">
+          <button class="hub-tab-btn active" id="tab-tasks-btn" onclick="switchTab('tasks')">Tasks & OCR Assignments</button>
+          <button class="hub-tab-btn" id="tab-competitions-btn" onclick="switchTab('competitions')">Competitions & Challenges</button>
+        </div>
+
+        <!-- Tab 1: Tasks & Submissions -->
+        <section id="tasks-panel">
+          <div class="two-col-grid grid">
+            <!-- Left: Active Tasks -->
+            <div class="glass-panel section-surface">
+              <div class="section-header">
+                <div>
+                  <h2>Active Tasks</h2>
+                  <p class="muted">Assignments collecting student evidence.</p>
+                </div>
+              </div>
+              <div id="tasks-list" class="mt-12">
+                <!-- Task Card 1: Handwritten OCR -->
+                <div class="task-card">
+                  <div>
+                    <strong>Photosynthesis Lab Report & Equations</strong>
+                    <div class="task-meta-pills">
+                      <span class="ocr-badge">✨ OCR Handwritten Enabled</span>
+                      <span class="soft-pill">Biology • 20 pts</span>
+                      <span class="soft-pill">4 Submissions</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="reviewSubmissions('task_handwritten_lab', 'Photosynthesis Lab Report')">Review Submissions</button>
+                </div>
+
+                <!-- Task Card 2: Normal Task -->
+                <div class="task-card">
+                  <div>
+                    <strong>Mendelian Genetics Punnett Grid</strong>
+                    <div class="task-meta-pills">
+                      <span class="soft-pill">Text & File Submission</span>
+                      <span class="soft-pill">Genetics • 20 pts</span>
+                      <span class="soft-pill">5 Submissions</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="reviewSubmissions('task_genetics_prob', 'Mendelian Genetics')">Review Submissions</button>
+                </div>
+
+                <!-- Task Card 3: AI Intervention Revision -->
+                <div class="task-card" style="border-left: 4px solid var(--accent-violet);">
+                  <div>
+                    <strong>Targeted Revision: Thylakoid Electrochemical Gradient</strong>
+                    <div class="task-meta-pills">
+                      <span class="ocr-badge">AI Suggested Intervention</span>
+                      <span class="soft-pill">Assigned to: Leo, Samira</span>
+                      <span class="soft-pill">15 pts</span>
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="reviewSubmissions('task_intervention_01', 'Targeted Revision')">Review Submissions</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Submissions Review Panel -->
+            <div class="glass-panel section-surface" id="submission-review-panel">
+              <div class="section-header">
+                <div>
+                  <h2 id="review-panel-title">Student Submissions</h2>
+                  <p class="muted" id="review-panel-sub">Select a task to review student work and grade with AI OCR.</p>
+                </div>
+              </div>
+              <div id="review-items-container" class="mt-12">
+                <div class="empty-state">
+                  Click "Review Submissions" on any task to evaluate student work and generate evidence.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 2: Competitions -->
+        <section id="competitions-panel" class="hidden">
+          <div class="glass-panel section-surface">
+            <div class="section-header">
+              <div>
+                <h2>Academic Competitions & Challenges</h2>
+                <p class="muted">Timed student contests that feed competitive evidence into Teaching Intelligence.</p>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openCreateCompModal()">+ Create Competition</button>
+            </div>
+            
+            <div class="grid two-col-grid mt-16">
+              <div class="task-card" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; width: 100%;">
+                  <strong>Classroom Science Olympiad Round 1</strong>
+                  <span class="soft-pill" style="background: #fef08a; color: #854d0e;">🏆 Live Challenge</span>
+                </div>
+                <p class="muted" style="font-size: 13px;">Complex problem solving across Cellular Respiration, Chemiosmosis, and Enzyme Kinetics. 30-minute time limit.</p>
+                <div style="display: flex; gap: 8px;">
+                  <span class="soft-pill">100 Points Pool</span>
+                  <span class="soft-pill">5 Participants</span>
+                </div>
+                <div class="form-actions mt-8" style="width: 100%;">
+                  <button class="btn btn-secondary btn-sm" onclick="alert('Viewing Science Olympiad Leaderboard:\n1. Maya Lin - 95 pts\n2. Priya Sharma - 88 pts\n3. Alex Rivera - 72 pts\n4. Samira Khan - 65 pts\n5. Leo Carter - 58 pts\n\nAll results recorded to student_evidence.')">View Live Leaderboard</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div class="modal-overlay" id="create-task-modal">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3>Create New Classroom Task</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeCreateTaskModal()">✕</button>
+        </div>
+        <form id="create-task-form" onsubmit="handleCreateTask(event)">
+          <div class="form-group mb-12">
+            <label class="form-label">Task Title *</label>
+            <input class="form-control" name="title" required placeholder="e.g. Photosynthesis Mechanism Diagram & Analysis">
+          </div>
+          <div class="two-col-grid grid mb-12">
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input class="form-control" name="subject" value="Biology" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Topic</label>
+              <input class="form-control" name="topic" value="Photosynthesis" required>
+            </div>
+          </div>
+          <div class="two-col-grid grid mb-12">
+            <div class="form-group">
+              <label class="form-label">Total Marks / Points</label>
+              <input class="form-control" type="number" name="totalMarks" value="20" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Skill Objective</label>
+              <input class="form-control" name="skill" value="Application & Synthesis" required>
+            </div>
+          </div>
+          <div class="form-group mb-16">
+            <label class="form-label">Instructions & Prompt</label>
+            <textarea class="form-control" rows="3" name="instructions" placeholder="Enter student instructions or questions..."></textarea>
+          </div>
+          <div class="form-group mb-20">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="checkbox" name="allowHandwritten" checked>
+              <strong>Enable Handwritten Answer Submission (AI OCR Grading)</strong>
+            </label>
+            <small class="muted" style="display: block; margin-left: 24px;">Students can photograph notebook or paper work. AI will extract equations & evaluate against your rubric.</small>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Publish Task</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCreateTaskModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Create Competition Modal -->
+    <div class="modal-overlay" id="create-comp-modal">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3>Create Classroom Competition</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeCreateCompModal()">✕</button>
+        </div>
+        <form id="create-comp-form" onsubmit="handleCreateComp(event)">
+          <div class="form-group mb-12">
+            <label class="form-label">Competition Title *</label>
+            <input class="form-control" name="title" required placeholder="e.g. Science Speed Challenge">
+          </div>
+          <div class="form-group mb-12">
+            <label class="form-label">Rules & Guidelines</label>
+            <textarea class="form-control" rows="2" name="rules" placeholder="Explain scoring and rules..."></textarea>
+          </div>
+          <div class="two-col-grid grid mb-12">
+            <div class="form-group">
+              <label class="form-label">Total Points Pool</label>
+              <input class="form-control" type="number" name="points" value="100" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Time Limit (Minutes)</label>
+              <input class="form-control" type="number" name="timeLimit" value="30" required>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Start Competition</button>
+            <button type="button" class="btn btn-secondary" onclick="closeCreateCompModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { EvidenceService } from "./assets/js/evidence-service.js";
+
+      window.switchTab = function(tab) {
+        document.getElementById("tab-tasks-btn").classList.toggle("active", tab === "tasks");
+        document.getElementById("tab-competitions-btn").classList.toggle("active", tab === "competitions");
+        document.getElementById("tasks-panel").classList.toggle("hidden", tab !== "tasks");
+        document.getElementById("competitions-panel").classList.toggle("hidden", tab !== "competitions");
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tab") === "competitions") {
+        window.switchTab("competitions");
+      }
+
+      window.openCreateTaskModal = () => document.getElementById("create-task-modal").classList.add("open");
+      window.closeCreateTaskModal = () => document.getElementById("create-task-modal").classList.remove("open");
+      window.openCreateCompModal = () => document.getElementById("create-comp-modal").classList.add("open");
+      window.closeCreateCompModal = () => document.getElementById("create-comp-modal").classList.remove("open");
+
+      window.handleCreateTask = function(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = fd.get("title");
+        const ocr = fd.get("allowHandwritten") === "on";
+
+        const taskHtml = `
+          <div class="task-card" style="border-left: 4px solid var(--accent-blue);">
+            <div>
+              <strong>${title}</strong>
+              <div class="task-meta-pills">
+                ${ocr ? '<span class="ocr-badge">✨ OCR Handwritten Enabled</span>' : '<span class="soft-pill">Text Answer</span>'}
+                <span class="soft-pill">${fd.get("subject")} • ${fd.get("totalMarks")} pts</span>
+                <span class="soft-pill">Just Published</span>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="reviewSubmissions('task_${Date.now()}', '${title}')">Review Submissions</button>
+          </div>
+        `;
+        document.getElementById("tasks-list").insertAdjacentHTML("afterbegin", taskHtml);
+        closeCreateTaskModal();
+        alert(`Task "${title}" published!\nStudents can now submit text or handwritten photos.`);
+      };
+
+      window.handleCreateComp = function(e) {
+        e.preventDefault();
+        closeCreateCompModal();
+        alert("Competition published! Students can join from their portal.");
+      };
+
+      // Interactive Submissions Review with OCR & AI Rubric Evaluation
+      window.reviewSubmissions = async function(taskId, taskTitle) {
+        document.getElementById("review-panel-title").textContent = `Submissions: ${taskTitle}`;
+        const container = document.getElementById("review-items-container");
+        
+        container.innerHTML = `
+          <div class="loading-state" style="padding: 20px; text-align: center;">
+            Loading student submissions & running AI OCR evaluation...
+          </div>
+        `;
+
+        // Request AI OCR Evaluation from server
+        try {
+          const ocrRes = await fetch("/api/ai/ocr-grade", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              studentName: "Samira Khan",
+              taskTitle: taskTitle,
+              textAnswer: "6CO2 + 6H2O -> C6H12O6 + 6O2. Protons accumulate inside the thylakoid lumen creating an electrochemical gradient.",
+              hasImage: true
+            })
+          });
+          const ocrData = await ocrRes.json();
+
+          container.innerHTML = `
+            <div class="submission-card p-16 glass-panel" style="margin-bottom: 16px; border: 1px solid var(--border-soft);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                  <strong>Samira Khan</strong>
+                  <span class="ocr-badge" style="margin-left: 8px;">📷 Handwritten Submission</span>
+                </div>
+                <span class="soft-pill" style="background: #dcfce7; color: #15803d; font-weight: 700;">OCR Confidence: 94%</span>
+              </div>
+
+              <div class="ocr-preview-box">
+                <span class="block-title">EXTRACTED STUDENT HANDWRITING (OCR)</span>
+                <pre style="white-space: pre-wrap; font-family: inherit; font-size: 13.5px; color: var(--text-strong);">${ocrData.extractedText}</pre>
+              </div>
+
+              <div style="background: rgba(124, 92, 255, 0.08); border-radius: 12px; padding: 14px; margin-bottom: 14px;">
+                <span class="block-title" style="color: var(--accent-violet);">AI RUBRIC EVALUATION</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                  <strong style="font-size: 16px;">Suggested Score: ${ocrData.score} / ${ocrData.maxScore} (${ocrData.percentage}%)</strong>
+                  <span class="status-pill status-accepted">AI Evaluated</span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-soft);">${ocrData.feedback}</p>
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-primary btn-sm" onclick="confirmAndRecordEvidence('student_samira', 'Samira Khan', '${taskId}', '${taskTitle}', ${ocrData.score}, ${ocrData.maxScore}, '${ocrData.feedback}')">
+                  ✓ Confirm Grade & Record Evidence
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="alert('Grade manual override enabled.')">Adjust Marks</button>
+              </div>
+            </div>
+
+            <!-- Submission 2: Leo Carter -->
+            <div class="submission-card p-16 glass-panel" style="border: 1px solid var(--border-soft);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <div>
+                  <strong>Leo Carter</strong>
+                  <span class="soft-pill" style="margin-left: 8px;">Text Submission</span>
+                </div>
+                <span class="soft-pill text-danger">Needs Review</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 10px;">
+                "Light dependent reactions produce 4 ATP through non-cyclic photophosphorylation. In drought, light stops working."
+              </p>
+              <div class="form-actions">
+                <button class="btn btn-primary btn-sm" onclick="confirmAndRecordEvidence('student_leo', 'Leo Carter', '${taskId}', '${taskTitle}', 11, 20, 'Definition recall is fine; mechanism confused.')">
+                  Record Evidence (11/20)
+                </button>
+              </div>
+            </div>
+          `;
+        } catch (err) {
+          container.innerHTML = `<div class="notice error">Failed to evaluate submissions: ${err.message}</div>`;
+        }
+      };
+
+      window.confirmAndRecordEvidence = async function(studentId, studentName, taskId, taskTitle, score, maxScore, feedback) {
+        await EvidenceService.recordEvidence({
+          studentId,
+          studentName,
+          classId: "class_bio_101",
+          className: "Biology - Grade 10",
+          sourceType: "OCR",
+          sourceId: taskId,
+          sourceTitle: taskTitle,
+          subject: "Biology",
+          topic: "Photosynthesis",
+          skill: "Application & Mechanism",
+          score,
+          maxScore,
+          answers: { verified: true },
+          mistakes: score < maxScore * 0.7 ? [{
+            questionId: "Eq3",
+            questionText: "Explain rate-limiting factor under drought",
+            given: "Light stops working",
+            expected: "CO2 limitation due to closed stomata",
+            concept: "Rate Limiting Factors"
+          }] : [],
+          attempts: 1,
+          feedback
+        });
+
+        alert(`Grade confirmed for ${studentName}!\nEvidence successfully recorded in Firestore student_evidence collection.\nTeaching Intelligence has been updated.`);
+      };
+    </script>
+  </body>
+</html>

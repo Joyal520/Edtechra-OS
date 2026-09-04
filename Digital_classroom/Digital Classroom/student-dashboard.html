@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Portal | Teacher OS Digital Classroom</title>
+    <link rel="stylesheet" href="assets/css/classroom.css">
+    <style>
+      .student-persona-bar {
+        background: linear-gradient(90deg, #f0fdf4, #eff6ff);
+        border: 1px solid rgba(79, 140, 255, 0.3);
+        border-radius: 16px;
+        padding: 12px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .persona-select {
+        padding: 6px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border-strong);
+        font-weight: 600;
+        background: white;
+      }
+      .live-quiz-join-card {
+        background: linear-gradient(135deg, #ffedd5, #fef3c7);
+        border: 1.5px solid #f97316;
+        border-radius: 20px;
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+      }
+      .pin-input-group {
+        display: flex;
+        gap: 10px;
+      }
+      .pin-input {
+        width: 150px;
+        font-size: 20px;
+        font-weight: 800;
+        text-align: center;
+        letter-spacing: 4px;
+        border-radius: 12px;
+        border: 2px solid #f97316;
+        padding: 8px;
+      }
+      .student-task-card {
+        padding: 18px 20px;
+        background: white;
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        margin-bottom: 14px;
+      }
+      .ocr-upload-area {
+        border: 2px dashed rgba(124, 92, 255, 0.4);
+        background: var(--bg-soft);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+        cursor: pointer;
+        margin: 10px 0;
+      }
+      .exam-interactive-modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .exam-interactive-modal.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .exam-modal-box {
+        background: white;
+        width: min(720px, 94vw);
+        max-height: 90vh;
+        overflow-y: auto;
+        border-radius: 24px;
+        padding: 28px;
+      }
+    </style>
+  </head>
+  <body data-page="student">
+    <div class="page-shell" id="app-shell">
+      <main class="main-content" style="max-width: 1080px; margin: 0 auto; padding: 24px 20px;">
+        <!-- Persona Bar -->
+        <div class="student-persona-bar">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="student-avatar-badge" style="width: 40px; height: 40px; border-radius: 50%; background: var(--accent-violet); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+              LC
+            </div>
+            <div>
+              <strong id="student-display-name">Leo Carter</strong>
+              <div style="font-size: 12px; color: var(--text-muted);">Grade 10 • Biology 101</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label style="font-size: 13px; font-weight: 600;">Switch Student Persona:</label>
+            <select class="persona-select" id="persona-dropdown" onchange="changeStudentPersona(this.value)">
+              <option value="student_leo">Leo Carter (Needs Revision)</option>
+              <option value="student_maya">Maya Lin (Top Scorer - 95%)</option>
+              <option value="student_samira">Samira Khan (OCR Lab Submitter)</option>
+              <option value="student_alex">Alex Rivera (Live Quiz Player)</option>
+              <option value="student_priya">Priya Sharma (90% Mastery)</option>
+            </select>
+            <a class="btn btn-secondary btn-sm" href="teacher-dashboard.html">Teacher Command Center ↗</a>
+          </div>
+        </div>
+
+        <!-- Real-time Live Quiz Join Banner -->
+        <div class="live-quiz-join-card">
+          <div>
+            <span class="soft-pill" style="background: #ea580c; color: white; font-weight: 800; font-size: 11px;">⚡ REAL-TIME QUIZ</span>
+            <h2 style="margin-top: 6px; font-size: 20px;">Join Teacher's Live Quiz Session</h2>
+            <p class="muted" style="color: #9a3412; font-size: 13.5px; margin: 4px 0 0;">Enter the 6-digit game PIN displayed on your teacher's projector screen.</p>
+          </div>
+          <div class="pin-input-group">
+            <input type="text" id="live-quiz-pin" class="pin-input" placeholder="000000" maxlength="6">
+            <button class="btn btn-primary" onclick="joinLiveQuiz()">Join Game</button>
+          </div>
+        </div>
+
+        <!-- Student Workspace Grid -->
+        <div class="two-col-grid grid">
+          <!-- Left Column: Pending Tasks & Handwritten OCR Upload -->
+          <div>
+            <div class="glass-panel section-surface mb-20">
+              <div class="section-header">
+                <div>
+                  <h2>Assigned Tasks</h2>
+                  <p class="muted">Submit written work or upload notebook photos.</p>
+                </div>
+              </div>
+
+              <!-- Task 1: OCR Handwritten Task -->
+              <div class="student-task-card" id="task-ocr-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div>
+                    <strong>Photosynthesis Lab Report & Equations</strong>
+                    <span class="ocr-badge" style="margin-left: 6px;">📷 Handwritten / OCR</span>
+                  </div>
+                  <span class="soft-pill">20 pts</span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 10px;">
+                  Write the balanced chemical formula for photosynthesis and explain how protons accumulate in the thylakoid lumen. Take a photo of your handwritten paper.
+                </p>
+
+                <div class="ocr-upload-area" onclick="simulateHandwrittenUpload()">
+                  <span style="font-size: 24px;">📸</span>
+                  <div style="font-weight: 700; color: var(--accent-violet); margin-top: 4px;">Click to Upload Handwritten Notebook Photo</div>
+                  <small class="muted">Supports JPG, PNG photos. AI will transcribe your handwriting and grade equations.</small>
+                </div>
+
+                <div id="ocr-student-status" style="margin-top: 10px;"></div>
+              </div>
+
+              <!-- Task 2: Targeted Revision Intervention -->
+              <div class="student-task-card" style="border-left: 4px solid var(--accent-violet);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                  <div>
+                    <strong>Targeted Revision: Thylakoid Electrochemical Gradient</strong>
+                    <span class="soft-pill" style="margin-left: 6px; background: #ede9fe; color: #6d28d9;">Assigned Activity</span>
+                  </div>
+                  <span class="soft-pill">15 pts</span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 10px;">
+                  20-minute guided activity addressing the relationship between proton accumulation and ATP Synthase stoichiometry.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="completeRevisionTask()">
+                  Start 20-Minute Guided Activity
+                </button>
+              </div>
+            </div>
+
+            <!-- Available Exams -->
+            <div class="glass-panel section-surface">
+              <div class="section-header">
+                <div>
+                  <h2>Scheduled Examinations</h2>
+                  <p class="muted">Timed assessments with automatic auto-save.</p>
+                </div>
+              </div>
+
+              <div class="student-task-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <strong>Midterm Biology Assessment</strong>
+                  <span class="soft-pill" style="background: #fee2e2; color: #b91c1c;">⏱ 45 Mins</span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 12px;">
+                  Sections: Multiple Choice, True/False, and Short Answer application questions.
+                </p>
+                <button class="btn btn-primary btn-sm" onclick="openStudentExamModal()">
+                  Start Exam Now
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Personal Evidence & Announcements -->
+          <div>
+            <!-- Personal Evidence Trail -->
+            <div class="glass-panel section-surface mb-20">
+              <div class="section-header">
+                <div>
+                  <h2>My Learning Evidence</h2>
+                  <p class="muted">Your recorded submissions and teacher/AI feedback.</p>
+                </div>
+              </div>
+              <div id="student-evidence-trail">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Announcements -->
+            <div class="glass-panel section-surface">
+              <div class="section-header">
+                <div>
+                  <h2>Classroom Announcements</h2>
+                  <p class="muted">Updates from Teacher Sarah Jenkins.</p>
+                </div>
+              </div>
+              <div class="student-task-card" style="border-left: 4px solid var(--accent-blue);">
+                <strong>Midterm Review Session Tomorrow</strong>
+                <p style="font-size: 13px; color: var(--text-soft); margin: 6px 0;">
+                  "Please review your recent quiz questions on Photosystem II before class tomorrow."
+                </p>
+                <small class="muted">Yesterday • For All Students</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Student Exam Interactive Modal with Countdown Timer -->
+    <div class="exam-interactive-modal" id="student-exam-modal">
+      <div class="exam-modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-soft); padding-bottom: 16px; margin-bottom: 20px;">
+          <div>
+            <h3>Midterm Biology Assessment</h3>
+            <small class="muted">Student: <strong id="exam-student-name">Leo Carter</strong></small>
+          </div>
+          <div style="background: #fee2e2; color: #b91c1c; font-weight: 800; font-size: 16px; padding: 6px 14px; border-radius: 20px;" id="exam-timer">
+            ⏱ 44:52
+          </div>
+        </div>
+
+        <form id="student-exam-form" onsubmit="handleExamSubmit(event)">
+          <!-- Q1 -->
+          <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-soft); border-radius: 14px;">
+            <p><strong>1. Which cellular organelle is responsible for generating the majority of ATP through oxidative phosphorylation? (2 pts)</strong></p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q1" value="Mitochondria" checked> Mitochondria</label>
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q1" value="Ribosome"> Ribosome</label>
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q1" value="Endoplasmic Reticulum"> Endoplasmic Reticulum</label>
+            </div>
+          </div>
+
+          <!-- Q2 -->
+          <div style="margin-bottom: 20px; padding: 16px; background: var(--bg-soft); border-radius: 14px;">
+            <p><strong>2. During the light-dependent reactions of photosynthesis, where do protons accumulate to form an electrochemical gradient? (2 pts)</strong></p>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q2" value="Thylakoid Lumen"> Thylakoid Lumen</label>
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q2" value="Stroma"> Stroma</label>
+              <label style="display: flex; gap: 8px; align-items: center;"><input type="radio" name="Q2" value="Outer Membrane"> Outer Membrane</label>
+            </div>
+          </div>
+
+          <!-- Q3 -->
+          <div style="margin-bottom: 24px; padding: 16px; background: var(--bg-soft); border-radius: 14px;">
+            <p><strong>3. Explain how stomatal closure during drought impacts the rate of the Calvin Cycle. (5 pts)</strong></p>
+            <textarea class="form-control" name="Q3" rows="3" placeholder="Type your answer explanation here...">Closing stomata preserves water inside the leaf, but starves the chloroplast of CO2, decreasing RuBisCO fixation rate.</textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Submit Examination</button>
+            <button type="button" class="btn btn-secondary" onclick="closeStudentExamModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { EvidenceService } from "./assets/js/evidence-service.js";
+      import { DEMO_STUDENTS, switchUserRole } from "./assets/js/firebase-config.js";
+
+      let activeStudentId = "student_leo";
+
+      window.changeStudentPersona = function(studentId) {
+        activeStudentId = studentId;
+        const student = DEMO_STUDENTS.find(s => s.id === studentId);
+        if (!student) return;
+
+        document.getElementById("student-display-name").textContent = student.name;
+        document.getElementById("student-avatar-badge").textContent = student.avatar;
+        document.getElementById("exam-student-name").textContent = student.name;
+        switchUserRole("student", studentId);
+        renderStudentEvidence();
+      };
+
+      window.joinLiveQuiz = function() {
+        const pin = document.getElementById("live-quiz-pin").value.trim();
+        if (!pin || pin.length < 4) {
+          alert("Please enter a valid 6-digit game PIN from your teacher.");
+          return;
+        }
+        window.location.href = `live_quiz-main/join.html?pin=${encodeURIComponent(pin)}`;
+      };
+
+      // Simulated Handwritten Upload with AI OCR & Evidence Emission
+      window.simulateHandwrittenUpload = async function() {
+        const statusEl = document.getElementById("ocr-student-status");
+        statusEl.innerHTML = `
+          <div style="padding: 12px; background: #e0f2fe; color: #0369a1; border-radius: 10px; font-size: 13px;">
+            📷 Photo uploaded! Running server-side OCR handwriting recognition and rubric evaluation...
+          </div>
+        `;
+
+        try {
+          const res = await fetch("/api/ai/ocr-grade", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              studentName: document.getElementById("student-display-name").textContent,
+              hasImage: true
+            })
+          });
+          const data = await res.json();
+
+          // Record new evidence!
+          await EvidenceService.recordEvidence({
+            studentId: activeStudentId,
+            studentName: document.getElementById("student-display-name").textContent,
+            classId: "class_bio_101",
+            className: "Biology - Grade 10",
+            sourceType: "OCR",
+            sourceId: "task_handwritten_lab",
+            sourceTitle: "Photosynthesis Lab Report & Equations",
+            subject: "Biology",
+            topic: "Photosynthesis",
+            skill: "Chemical Equation Application",
+            score: data.score,
+            maxScore: data.maxScore,
+            answers: { transcribed: data.extractedText },
+            mistakes: data.percentage < 70 ? [{
+              questionId: "Eq3",
+              questionText: "Explain rate-limiting curve under drought",
+              given: "Partial explanation",
+              expected: "CO2 limitation due to stomatal resistance",
+              concept: "Rate Limiting Factors"
+            }] : [],
+            attempts: 1,
+            feedback: data.feedback
+          });
+
+          statusEl.innerHTML = `
+            <div style="padding: 12px; background: #dcfce7; color: #166534; border-radius: 10px; font-size: 13px; font-weight: 600;">
+              ✓ Graded & Verified by AI OCR: ${data.score}/${data.maxScore} (${data.percentage}%). Evidence stored!
+            </div>
+          `;
+          renderStudentEvidence();
+        } catch (e) {
+          statusEl.innerHTML = `<div class="notice error">Upload failed: ${e.message}</div>`;
+        }
+      };
+
+      window.completeRevisionTask = async function() {
+        const studentName = document.getElementById("student-display-name").textContent;
+        const confirm = window.confirm(`Complete the 20-minute targeted inquiry activity for ${studentName}?`);
+        if (!confirm) return;
+
+        // Emit improved evidence!
+        await EvidenceService.recordEvidence({
+          studentId: activeStudentId,
+          studentName: studentName,
+          classId: "class_bio_101",
+          className: "Biology - Grade 10",
+          sourceType: "TASK",
+          sourceId: "task_revision_thylakoid",
+          sourceTitle: "Targeted Revision: Thylakoid Electrochemical Gradient",
+          subject: "Biology",
+          topic: "Photosynthesis",
+          skill: "Application & Synthesis",
+          score: 14,
+          maxScore: 15,
+          percentage: 93,
+          answers: { revisionCompleted: true },
+          mistakes: [],
+          attempts: 1,
+          feedback: "Remarkable improvement! Correctly identified proton accumulation inside the thylakoid lumen driving ATP Synthase."
+        });
+
+        alert(`Congratulations ${studentName}!\nTargeted revision completed with 93% score.\nNew evidence recorded in Firestore — Teaching Intelligence has measured your improvement!`);
+        renderStudentEvidence();
+      };
+
+      window.openStudentExamModal = () => document.getElementById("student-exam-modal").classList.add("open");
+      window.closeStudentExamModal = () => document.getElementById("student-exam-modal").classList.remove("open");
+
+      window.handleExamSubmit = async function(e) {
+        e.preventDefault();
+        const studentName = document.getElementById("student-display-name").textContent;
+        
+        await EvidenceService.recordEvidence({
+          studentId: activeStudentId,
+          studentName: studentName,
+          classId: "class_bio_101",
+          className: "Biology - Grade 10",
+          sourceType: "EXAM",
+          sourceId: "exam_bio_midterm",
+          sourceTitle: "Midterm Biology Assessment",
+          subject: "Biology",
+          topic: "Photosynthesis",
+          skill: "Application & Synthesis",
+          score: 18,
+          maxScore: 20,
+          percentage: 90,
+          answers: { Q1: "Mitochondria", Q2: "Thylakoid Lumen", Q3: "Calvin cycle explanation" },
+          mistakes: [],
+          attempts: 1,
+          feedback: "Excellent exam completion under timed conditions."
+        });
+
+        closeStudentExamModal();
+        alert(`Exam submitted successfully, ${studentName}!\nScore: 18/20 (90%)\nResults recorded into student evidence.`);
+        renderStudentEvidence();
+      };
+
+      function renderStudentEvidence() {
+        const container = document.getElementById("student-evidence-trail");
+        if (!container) return;
+
+        const evidence = EvidenceService.getEvidenceForStudent(activeStudentId);
+        if (evidence.length === 0) {
+          container.innerHTML = `<div class="empty-state">No evidence submitted yet. Complete a task or exam above!</div>`;
+          return;
+        }
+
+        container.innerHTML = evidence.map(e => `
+          <div class="student-task-card" style="margin-bottom: 10px; padding: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="badge badge-${e.sourceType.toLowerCase()}">${e.sourceType}</span>
+              <strong style="color: ${e.percentage < 65 ? 'var(--danger)' : 'var(--accent-blue)'};">${e.score}/${e.maxScore} (${e.percentage}%)</strong>
+            </div>
+            <strong>${e.sourceTitle}</strong>
+            <p style="font-size: 12.5px; color: var(--text-soft); margin: 4px 0;">${e.feedback || "Submission verified."}</p>
+            <small class="muted">${new Date(e.timestamp).toLocaleDateString()} at ${new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small>
+          </div>
+        `).join("");
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        EvidenceService.subscribe(renderStudentEvidence);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,40 @@
+# Node & dependencies
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Firebase credentials & Service Accounts (CRITICAL)
+*adminsdk*.json
+*-firebase-adminsdk-*.json
+service-account*.json
+**/*adminsdk*.json
+**/*-firebase-adminsdk-*.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+env..txt
+env.txt
+*.env
+**/.env*
+**/env..txt
+**/env.txt
+supabase-config.local.js
+**/supabase-config.local.js
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+**/*.log
+.server.*
+**/.server.*
+node-server.*
+**/node-server.*
+.chrome*
+**/.chrome*

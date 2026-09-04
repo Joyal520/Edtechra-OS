@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Teaching Command Center | Teacher OS</title>
+    <link rel="stylesheet" href="assets/css/classroom.css">
+    <style>
+      .center-intelligence-panel {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.09), rgba(79, 140, 255, 0.14));
+        border: 1.5px solid rgba(124, 92, 255, 0.35);
+        border-radius: 24px;
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 24px;
+        box-shadow: 0 16px 40px rgba(124, 92, 255, 0.12);
+      }
+      .center-intelligence-panel::before {
+        content: "";
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(124, 92, 255, 0.22) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .intel-banner-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+      }
+      .intel-sparkle-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(124, 92, 255, 0.15);
+        color: var(--accent-violet);
+        font-weight: 800;
+        font-size: 12px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .intel-banner-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+        align-items: center;
+      }
+      .intel-banner-stats {
+        display: flex;
+        gap: 20px;
+        background: rgba(255, 255, 255, 0.75);
+        border: 1px solid rgba(176, 191, 217, 0.4);
+        border-radius: 16px;
+        padding: 16px 20px;
+      }
+      .banner-stat-item {
+        display: flex;
+        flex-direction: column;
+      }
+      .banner-stat-item .val {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text-strong);
+      }
+      .banner-stat-item .lbl {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .quick-action-strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .action-tile {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 18px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid var(--border-soft);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .action-tile:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-card);
+      }
+      .action-tile-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+      }
+      .tile-tasks { background: #e0f2fe; color: #0284c7; }
+      .tile-exams { background: #f3e8ff; color: #9333ea; }
+      .tile-quizzes { background: #ffedd5; color: #ea580c; }
+      .tile-competitions { background: #fef08a; color: #ca8a04; }
+      .tile-ai { background: #dbeafe; color: #2563eb; }
+
+      .evidence-feed-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.65);
+        border: 1px solid var(--border-soft);
+        border-radius: 12px;
+        margin-bottom: 8px;
+      }
+      .badge-source {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+      .badge-exam { background: #e0f2fe; color: #0369a1; }
+      .badge-task { background: #dcfce7; color: #15803d; }
+      .badge-ocr { background: #f3e8ff; color: #7e22ce; }
+      .badge-live_quiz { background: #ffedd5; color: #c2410c; }
+      .badge-competition { background: #fef08a; color: #854d0e; }
+      .role-switch-banner {
+        background: #f8faff;
+        border: 1px solid var(--border-strong);
+        border-radius: 14px;
+        padding: 10px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+    </style>
+  </head>
+  <body data-page="dashboard">
+    <div class="page-shell" id="app-shell">
+      <!-- Universal Sidebar Navigation -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-badge">OS</div>
+          <div class="brand-copy">
+            <strong>Teacher OS</strong>
+            <span>Digital Classroom</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link active" href="teacher-dashboard.html">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Tasks</span>
+          </a>
+          <a class="nav-link" href="exam.html">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Exams</span>
+          </a>
+          <a class="nav-link" href="live_quiz-main/host-lobby.html">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Quizzes</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html?tab=competitions">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">Competitions</span>
+          </a>
+          <a class="nav-link" href="teaching-intelligence.html">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-label">Teaching Intelligence</span>
+          </a>
+          <a class="nav-link" href="announcements.html">
+            <span class="nav-icon">📢</span>
+            <span class="nav-label">Announcements</span>
+          </a>
+        </nav>
+        <div class="sidebar-profile">
+          <span class="avatar">SJ</span>
+          <div>
+            <strong>Sarah Jenkins</strong>
+            <small>Class Teacher</small>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <!-- Interactive Role Switcher for Pair-Testing -->
+        <div class="role-switch-banner">
+          <div>
+            <strong>Viewing as: Class Teacher (Sarah Jenkins)</strong>
+            <span class="muted" style="margin-left: 10px;">• Active Class: Biology - Grade 10</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <a class="btn btn-secondary btn-sm" href="student-dashboard.html" target="_blank">Open Student View ↗</a>
+            <a class="btn btn-primary btn-sm" href="teaching-intelligence.html">Open Teaching Intelligence 🧠</a>
+          </div>
+        </div>
+
+        <!-- Visual Center: Teaching Intelligence Pulse -->
+        <header class="center-intelligence-panel">
+          <div class="intel-banner-top">
+            <span class="intel-sparkle-pill">✨ Teaching Intelligence Center</span>
+            <span class="soft-pill">Live Firestore Connection</span>
+          </div>
+          <div class="intel-banner-grid">
+            <div>
+              <h1 style="font-size: 26px; margin-bottom: 8px;">What is happening with your students?</h1>
+              <p class="subtitle" style="margin-bottom: 14px;" id="dashboard-intel-summary">
+                Overall class mastery is at <strong>72%</strong>. AI has detected that <strong>2 students (Leo Carter, Samira Khan)</strong> are struggling with <em>Photosynthesis application questions</em> despite strong definition recall.
+              </p>
+              <div class="form-actions">
+                <a class="btn btn-primary btn-compact" href="teaching-intelligence.html">Review Evidence & Intervene</a>
+                <button class="btn btn-secondary btn-compact" onclick="window.location.href='teaching-intelligence.html?openChat=1'">Ask Teaching AI</button>
+              </div>
+            </div>
+            <div class="intel-banner-stats">
+              <div class="banner-stat-item">
+                <span class="val" id="dash-mastery">72%</span>
+                <span class="lbl">Class Mastery</span>
+              </div>
+              <div class="banner-stat-item">
+                <span class="val text-danger" id="dash-at-risk">2</span>
+                <span class="lbl">At-Risk Students</span>
+              </div>
+              <div class="banner-stat-item">
+                <span class="val" id="dash-evidence-count">6</span>
+                <span class="lbl">Evidence Records</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Quick Evidence Collector Actions -->
+        <section class="quick-action-strip">
+          <a class="action-tile" href="activity-hub.html?action=create-task">
+            <div class="action-tile-icon tile-tasks">📋</div>
+            <div>
+              <strong>Create Task</strong>
+              <small class="muted" style="display: block;">Text or OCR handwritten</small>
+            </div>
+          </a>
+          <a class="action-tile" href="exam.html">
+            <div class="action-tile-icon tile-exams">📝</div>
+            <div>
+              <strong>Exams Engine</strong>
+              <small class="muted" style="display: block;">Exam 2.0 with live timer</small>
+            </div>
+          </a>
+          <a class="action-tile" href="live_quiz-main/host-lobby.html">
+            <div class="action-tile-icon tile-quizzes">⚡</div>
+            <div>
+              <strong>Live Quiz</strong>
+              <small class="muted" style="display: block;">Real-time PIN & scoreboard</small>
+            </div>
+          </a>
+          <a class="action-tile" href="activity-hub.html?tab=competitions">
+            <div class="action-tile-icon tile-competitions">🏆</div>
+            <div>
+              <strong>Competition</strong>
+              <small class="muted" style="display: block;">Timed challenges & ranks</small>
+            </div>
+          </a>
+        </section>
+
+        <!-- Stats Grid -->
+        <section class="stats-grid grid">
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Enrolled Students</span>
+              <span class="stat-icon stat-icon-students"></span>
+            </div>
+            <strong class="stat-value">5</strong>
+            <span class="stat-subtext">Active in Biology 101</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Tasks & OCR</span>
+              <span class="stat-icon stat-icon-assignments"></span>
+            </div>
+            <strong class="stat-value" id="dash-tasks-count">3</strong>
+            <span class="stat-subtext">1 handwritten OCR active</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Completed Exams</span>
+              <span class="stat-icon stat-icon-submissions"></span>
+            </div>
+            <strong class="stat-value" id="dash-exams-count">2</strong>
+            <span class="stat-subtext">Graded with analytics</span>
+          </div>
+          <div class="stat-card glass-card">
+            <div class="stat-card-top">
+              <span class="stat-label">Live Quizzes Held</span>
+              <span class="stat-icon stat-icon-completion"></span>
+            </div>
+            <strong class="stat-value">1</strong>
+            <span class="stat-subtext">Real-time sessions</span>
+          </div>
+        </section>
+
+        <!-- Main Two-Column Layout -->
+        <div class="two-col-grid grid mt-20">
+          <!-- Left: Students Requiring Immediate Attention -->
+          <section class="glass-panel section-surface">
+            <div class="section-header">
+              <div>
+                <h2>Students Flagged for Attention</h2>
+                <p class="muted">Repeated concept errors detected across multiple evidence sources.</p>
+              </div>
+              <a class="text-action" href="teaching-intelligence.html">Deep Dive →</a>
+            </div>
+            <div id="dash-at-risk-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </section>
+
+          <!-- Right: Real-time Evidence Stream -->
+          <section class="glass-panel section-surface">
+            <div class="section-header">
+              <div>
+                <h2>Recent Student Evidence</h2>
+                <p class="muted">Live stream from Tasks, OCR, Exams, and Quizzes.</p>
+              </div>
+              <a class="text-action" href="teaching-intelligence.html">All Evidence →</a>
+            </div>
+            <div id="dash-recent-evidence-list">
+              <!-- Rendered dynamically -->
+            </div>
+          </section>
+        </div>
+
+        <!-- AI Proactive Recommendation Banner -->
+        <section class="recommendation-card glass-panel mt-20" style="border-left: 6px solid var(--accent-violet);">
+          <div class="rec-header">
+            <div class="rec-badge"><span class="icon-sparkle">✨</span> ACTIVE AI RECOMMENDATION</div>
+            <span class="status-pill status-pending">REQUIRES TEACHER APPROVAL</span>
+          </div>
+          <h3 style="margin-bottom: 8px;">Targeted Revision: Thylakoid Electrochemical Gradient</h3>
+          <p class="muted" style="margin-bottom: 12px;">
+            Evidence: 4 of 6 students answered definition questions correctly (90%), but struggled with mechanistic application questions (55%) on the Midterm Exam and OCR Lab.
+          </p>
+          <div class="form-actions">
+            <button class="btn btn-primary" onclick="alert('Intervention Approved!\n20-minute targeted inquiry task assigned to Leo Carter and Samira Khan.');">
+              Accept & Assign Activity
+            </button>
+            <a class="btn btn-secondary" href="teaching-intelligence.html">
+              Review in Teaching Intelligence
+            </a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module">
+      import { EvidenceService } from "./assets/js/evidence-service.js";
+
+      function renderDashboard() {
+        const intel = EvidenceService.aggregateIntelligence("class_bio_101");
+        if (!intel) return;
+
+        document.getElementById("dash-mastery").textContent = `${intel.classMastery}%`;
+        document.getElementById("dash-at-risk").textContent = intel.atRiskStudents.length;
+        document.getElementById("dash-evidence-count").textContent = intel.totalRecords;
+
+        const atRiskContainer = document.getElementById("dash-at-risk-list");
+        if (atRiskContainer) {
+          atRiskContainer.innerHTML = intel.atRiskStudents.map(s => `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: rgba(254, 242, 242, 0.7); border: 1px solid rgba(248, 113, 113, 0.3); border-radius: 14px; margin-bottom: 10px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 38px; height: 38px; border-radius: 50%; background: var(--danger); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                  ${s.studentName.split(" ").map(n => n[0]).join("")}
+                </div>
+                <div>
+                  <strong>${s.studentName}</strong>
+                  <div style="font-size: 12px; color: var(--text-muted);">${s.average}% mastery • ${s.mistakes.length} errors logged</div>
+                </div>
+              </div>
+              <a class="btn btn-primary btn-sm" href="teaching-intelligence.html?studentId=${s.studentId}">Intervene</a>
+            </div>
+          `).join("");
+        }
+
+        const evidenceContainer = document.getElementById("dash-recent-evidence-list");
+        if (evidenceContainer) {
+          evidenceContainer.innerHTML = intel.recentEvidence.slice(0, 5).map(e => `
+            <div class="evidence-feed-card">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge-source badge-${e.sourceType.toLowerCase()}">${e.sourceType}</span>
+                <div>
+                  <strong>${e.studentName}</strong>: ${e.sourceTitle}
+                  <div style="font-size: 12px; color: var(--text-muted);">${e.topic} • ${e.score}/${e.maxScore} (${e.percentage}%)</div>
+                </div>
+              </div>
+              <span style="font-size: 11px; color: var(--text-muted);">${new Date(e.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+          `).join("");
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        EvidenceService.subscribe(renderDashboard);
+      });
+    </script>
+  </body>
+</html>

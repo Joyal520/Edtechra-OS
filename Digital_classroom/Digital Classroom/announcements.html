@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Announcement Intelligence | Teacher OS</title>
+    <link rel="stylesheet" href="assets/css/classroom.css">
+    <style>
+      .audience-tabs {
+        display: flex;
+        gap: 12px;
+        margin: 20px 0;
+        border-bottom: 1px solid var(--border-strong);
+        padding-bottom: 8px;
+      }
+      .audience-tab-btn {
+        background: none;
+        border: none;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.2s ease;
+      }
+      .audience-tab-btn.active {
+        background: var(--surface-strong);
+        color: var(--accent-violet);
+        box-shadow: 0 4px 12px rgba(124, 92, 255, 0.15);
+      }
+      .announcement-card {
+        padding: 20px;
+        background: white;
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .priority-urgent { border-left: 5px solid var(--danger); }
+      .priority-high { border-left: 5px solid #f97316; }
+      .priority-normal { border-left: 5px solid var(--accent-blue); }
+      .ai-suggested-banner {
+        background: linear-gradient(135deg, rgba(124, 92, 255, 0.08), rgba(79, 140, 255, 0.1));
+        border: 1px dashed rgba(124, 92, 255, 0.35);
+        border-radius: 18px;
+        padding: 20px;
+        margin-bottom: 24px;
+      }
+      /* Modal */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.55);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .modal-overlay.open {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .modal-box {
+        background: white;
+        width: min(600px, 92vw);
+        border-radius: 24px;
+        padding: 28px;
+      }
+    </style>
+  </head>
+  <body data-page="announcements">
+    <div class="page-shell" id="app-shell">
+      <!-- Universal Sidebar Navigation -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-badge">OS</div>
+          <div class="brand-copy">
+            <strong>Teacher OS</strong>
+            <span>Digital Classroom</span>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="teacher-dashboard.html">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Tasks</span>
+          </a>
+          <a class="nav-link" href="exam.html">
+            <span class="nav-icon">📝</span>
+            <span class="nav-label">Exams</span>
+          </a>
+          <a class="nav-link" href="live_quiz-main/host-lobby.html">
+            <span class="nav-icon">⚡</span>
+            <span class="nav-label">Quizzes</span>
+          </a>
+          <a class="nav-link" href="activity-hub.html?tab=competitions">
+            <span class="nav-icon">🏆</span>
+            <span class="nav-label">Competitions</span>
+          </a>
+          <a class="nav-link" href="teaching-intelligence.html">
+            <span class="nav-icon">🧠</span>
+            <span class="nav-label">Teaching Intelligence</span>
+          </a>
+          <a class="nav-link active" href="announcements.html">
+            <span class="nav-icon">📢</span>
+            <span class="nav-label">Announcements</span>
+          </a>
+        </nav>
+        <div class="sidebar-profile">
+          <span class="avatar">SJ</span>
+          <div>
+            <strong>Sarah Jenkins</strong>
+            <small>Class Teacher</small>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="dashboard-hero glass-panel page-hero page-hero-slim">
+          <div class="dashboard-hero-copy">
+            <span class="soft-pill">Communication & Impact Layer</span>
+            <h1>Announcement Intelligence</h1>
+            <p class="subtitle">AI-assisted communications for Teachers, Students, and Parents. Teacher approval gate prevents automated unverified external messaging.</p>
+          </div>
+          <div class="dashboard-hero-actions">
+            <button class="btn btn-primary" onclick="openNewAnnouncementModal()">+ New Announcement</button>
+          </div>
+        </header>
+
+        <!-- AI Suggested Parent Communication Banner with Gate -->
+        <div class="ai-suggested-banner mt-20">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 20px;">✨</span>
+              <strong>AI Suggested Parent Communication (Awaiting Teacher Approval)</strong>
+            </div>
+            <span class="soft-pill" style="background: #fef3c7; color: #92400e; font-weight: 700;">TEACHER GATE ENFORCED</span>
+          </div>
+          <p style="font-size: 13.5px; color: var(--text-soft); margin-bottom: 12px;">
+            <strong>Target:</strong> Parents of Leo Carter • <strong>Context:</strong> Targeted revision activity assigned after Photosynthesis Midterm Exam.
+          </p>
+          <div style="background: white; border-radius: 12px; padding: 14px; border: 1px solid var(--border-soft); margin-bottom: 14px; font-size: 13.5px;">
+            <em>"Dear Carter Family, Leo showed strong conceptual recall on our recent biology definitions exam. We have provided him with a supportive 20-minute guided revision activity to reinforce mechanistic application questions. No additional homework is required at this time."</em>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn-primary btn-sm" onclick="approveParentAnnouncement()">✓ Approve & Send to Parents</button>
+            <button class="btn btn-secondary btn-sm" onclick="alert('Message editor opened.')">Modify Draft</button>
+            <button class="btn btn-ghost btn-sm text-danger" onclick="this.closest('.ai-suggested-banner').remove()">Dismiss</button>
+          </div>
+        </div>
+
+        <!-- Audience Filter Tabs -->
+        <div class="audience-tabs">
+          <button class="audience-tab-btn active" onclick="filterAudience('all', this)">All Audiences</button>
+          <button class="audience-tab-btn" onclick="filterAudience('teacher', this)">Teachers (Internal)</button>
+          <button class="audience-tab-btn" onclick="filterAudience('student', this)">Students</button>
+          <button class="audience-tab-btn" onclick="filterAudience('parent', this)">Parents</button>
+        </div>
+
+        <!-- Announcements Feed -->
+        <div id="announcements-container">
+          <!-- Announcement 1: Teacher Internal -->
+          <div class="announcement-card priority-high" data-audience="teacher">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="soft-pill" style="background: #ede9fe; color: #6d28d9; font-weight: 700;">TEACHERS</span>
+                <span class="soft-pill">High Priority</span>
+              </div>
+              <h3 style="font-size: 16px; margin-bottom: 6px;">Attention: Photosynthesis Application Gap Flagged</h3>
+              <p class="muted" style="font-size: 13.5px;">
+                Teaching Intelligence has flagged that 2 students require targeted intervention on thylakoid proton pump stoichiometry before the upcoming Genetics module.
+              </p>
+              <small class="muted" style="display: block; margin-top: 8px;">Generated by Teaching Intelligence • Today at 09:30 AM</small>
+            </div>
+            <a class="btn btn-secondary btn-sm" href="teaching-intelligence.html">View Intelligence</a>
+          </div>
+
+          <!-- Announcement 2: Student -->
+          <div class="announcement-card priority-normal" data-audience="student">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="soft-pill" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">STUDENTS</span>
+                <span class="soft-pill">Curriculum</span>
+              </div>
+              <h3 style="font-size: 16px; margin-bottom: 6px;">Midterm Exam Graded & Feedback Ready</h3>
+              <p class="muted" style="font-size: 13.5px;">
+                Your Midterm Biology Assessment has been auto-graded with question-level feedback. Check your learning evidence trail for personalized notes.
+              </p>
+              <small class="muted" style="display: block; margin-top: 8px;">Sarah Jenkins • Yesterday</small>
+            </div>
+            <a class="btn btn-secondary btn-sm" href="student-dashboard.html" target="_blank">Student View</a>
+          </div>
+
+          <!-- Announcement 3: Parent -->
+          <div class="announcement-card priority-normal" data-audience="parent">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="soft-pill" style="background: #fef08a; color: #854d0e; font-weight: 700;">PARENTS</span>
+                <span class="soft-pill">Progress Digest</span>
+              </div>
+              <h3 style="font-size: 16px; margin-bottom: 6px;">Grade 10 Biology Monthly Learning Progress Update</h3>
+              <p class="muted" style="font-size: 13.5px;">
+                Our class has completed Unit 3 (Cellular Biology). Students engaged in live interactive quizzes, hands-on lab equations, and comprehensive midterm assessments. Overall class mastery is currently at 72%.
+              </p>
+              <small class="muted" style="display: block; margin-top: 8px;">Approved by Teacher Sarah Jenkins • 3 days ago</small>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Create Announcement Modal -->
+    <div class="modal-overlay" id="new-announcement-modal">
+      <div class="modal-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h3>Create Announcement</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeNewAnnouncementModal()">✕</button>
+        </div>
+        <form onsubmit="handlePostAnnouncement(event)">
+          <div class="form-group mb-12">
+            <label class="form-label">Announcement Title *</label>
+            <input class="form-control" name="title" required placeholder="e.g. Lab Safety Equipment Reminder">
+          </div>
+          <div class="two-col-grid grid mb-12">
+            <div class="form-group">
+              <label class="form-label">Target Audience</label>
+              <select class="form-control" name="recipientType">
+                <option value="student">Students</option>
+                <option value="parent">Parents</option>
+                <option value="teacher">Teachers</option>
+                <option value="all">All Audiences</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select class="form-control" name="priority">
+                <option value="normal">Normal</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group mb-20">
+            <label class="form-label">Message Content *</label>
+            <textarea class="form-control" rows="4" name="message" required placeholder="Type the announcement message..."></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Post Announcement</button>
+            <button type="button" class="btn btn-secondary" onclick="closeNewAnnouncementModal()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function filterAudience(aud, btn) {
+        document.querySelectorAll(".audience-tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        document.querySelectorAll(".announcement-card").forEach(c => {
+          if (aud === "all" || c.dataset.audience === aud) {
+            c.style.display = "flex";
+          } else {
+            c.style.display = "none";
+          }
+        });
+      }
+
+      function openNewAnnouncementModal() {
+        document.getElementById("new-announcement-modal").classList.add("open");
+      }
+      function closeNewAnnouncementModal() {
+        document.getElementById("new-announcement-modal").classList.remove("open");
+      }
+
+      function handlePostAnnouncement(e) {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const title = fd.get("title");
+        const aud = fd.get("recipientType");
+        const priority = fd.get("priority");
+        const message = fd.get("message");
+
+        const card = `
+          <div class="announcement-card priority-${priority}" data-audience="${aud}">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <span class="soft-pill" style="font-weight: 700;">${aud.toUpperCase()}</span>
+                <span class="soft-pill">${priority.toUpperCase()}</span>
+              </div>
+              <h3 style="font-size: 16px; margin-bottom: 6px;">${title}</h3>
+              <p class="muted" style="font-size: 13.5px;">${message}</p>
+              <small class="muted" style="display: block; margin-top: 8px;">Just now • Sarah Jenkins</small>
+            </div>
+          </div>
+        `;
+        document.getElementById("announcements-container").insertAdjacentHTML("afterbegin", card);
+        closeNewAnnouncementModal();
+        alert(`Announcement "${title}" posted to ${aud.toUpperCase()} stream!`);
+      }
+
+      function approveParentAnnouncement() {
+        alert("Parent Communication Approved!\nMessage dispatched to parents of Leo Carter via secure notification channel.");
+        document.querySelector(".ai-suggested-banner").remove();
+      }
+    </script>
+  </body>
+</html>
